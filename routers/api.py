@@ -1,7 +1,9 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, HTTPException
 from transformers import AutoTokenizer, AutoModelForCausalLM
 from huggingface_hub import login
 import torch
+
+from utils.enums import Lang
 
 router = APIRouter()
 
@@ -18,11 +20,13 @@ model = AutoModelForCausalLM.from_pretrained(MODEL_NAME, device_map="auto", trus
 
 
 @router.post("/invoke")
-async def invoke(prompt: str, lang: str = "AR"):
-    if lang == "AR":
+async def invoke(prompt: str, lang: str = Lang.AR):
+    if lang == Lang.AR:
         text = PROMPT_AR.format_map({'Question':prompt})
-    else:
+    elif lang == Lang.EN:
         text = PROMPT_EN.format_map({'Question':prompt})
+    else:
+        raise HTTPException(status_code=500, detail="Invalid Language")
     input_ids = tokenizer(text, return_tensors="pt").input_ids
     inputs = input_ids.to(device)
     input_len = inputs.shape[-1]
