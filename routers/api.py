@@ -20,7 +20,7 @@ model = AutoModelForCausalLM.from_pretrained(MODEL_NAME, device_map="auto", trus
 
 
 @router.post("/invoke")
-async def invoke(prompt: str, lang: str = Lang.AR):
+async def invoke(prompt: str, lang: Lang = Lang.AR):
     if lang == Lang.AR:
         text = PROMPT_AR.format_map({'Question':prompt})
     elif lang == Lang.EN:
